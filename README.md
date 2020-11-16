@@ -6,15 +6,10 @@
 
 ### Dev
 
-    npm start dev
-
-#### or
-
-    npm start
+    npm run dev
 
 ### Swagger Doc
 
-- Launch API
 - In browser access: URL:PORT/api-docs
 
 ## Project structure

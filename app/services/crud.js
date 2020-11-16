@@ -1,6 +1,29 @@
 // a crud services that do all the crud operation and it will be used as the base for all the services
 // for other services (except crud) we'll create a new service file (text.js for exemple)
 
+/* const map = function() {
+  var content = this.content;
+  if (summacontentry) {
+    // quick lowercase to normalize per your requirements
+    content = content.toLowerCase().split(" ");
+    for (var i = content.length - 1; i >= 0; i--) {
+      // might want to remove punctuation, etc. here
+      if (content[i]) {
+        // make sure there's something
+        emit(content[i], 1); // store a 1 for each word
+      }
+    }
+  }
+}; */
+
+/* const reduce = function(key, values) {
+  var count = 0;
+  values.forEach(function(v) {
+    count += v;
+  });
+  return count;
+};
+ */
 // create model
 const create = (Model, data) => {
   const newObject = new Model({ ...data });
@@ -94,6 +117,10 @@ const findPaginated = (Model, query, options) => {
       return null;
     });
 };
+
+const mapReduce = (Model, query, options) => {
+  Model.mapReduce(map, reduce, { limit: 1000, out: "word_count" });
+};
 export default {
   create,
   findOne,
@@ -102,5 +129,6 @@ export default {
   updateOne,
   remove,
   createMany,
-  findPaginated
+  findPaginated,
+  mapReduce
 };

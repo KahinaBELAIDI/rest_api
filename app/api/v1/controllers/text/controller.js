@@ -2,6 +2,9 @@ import CrudService from "../../../../services/crud";
 import Text from "../../../../models/text";
 import uid from "../../../../helpers/uuid";
 
+function getWordCount(str) {
+  return str.split(" ").length;
+}
 const addText = async (req, res) => {
   console.log("\n here in add new text ");
   if (!req.body)
@@ -63,11 +66,52 @@ const getWordsNumber = async (req, res) => {
   const textId = req.params.textId;
   const textFound = await CrudService.findOne(Text, { text_id: textId });
   if (!textFound) return res.status(404).json({ message: "Text not found" });
+  else {
+    //get number of words of text in default language (here fr)
+    let text = textFound.content[0].text;
+    let count = getWordCount(text);
+    console.log("\n count : ", count);
+    return res.status(200).json({ message: "Success", data: { count } });
+  }
 };
 
-const getTotalWordByLang = async (req, res) => {};
-const getMostOccurent = async (req, res) => {};
-const searchText = async (req, res) => {};
+const getTotalWordByLang = async (req, res) => {
+  console.log(
+    "\n **** Fetch total word number based on given text for specific languages ex: fr, ar, en"
+  );
+  let { lang, textId } = req.params;
+  const textFound = await CrudService.findOne(Text, { text_id: textId });
+  if (!textFound) return res.status(404).json({ message: "Text not found" });
+  else {
+    let text = textFound.content.filter(elt => elt.lang == lang);
+    if (!text[0])
+      return res
+        .status(500)
+        .json({ message: "Text with specified language doesn't exist" });
+
+    let count = getWordCount(text[0].text);
+    console.log("\n counr :", count);
+    return res.status(200).json({ message: "Success", data: { count } });
+  }
+};
+//TO DO
+const getMostOccurent = async (req, res) => {
+  const word_count = CrudService.mapReduce(map, reduce, { out: "word_count" });
+};
+const searchText = async (req, res) => {
+  let searchText = String(req.params.q);
+  let texts = await CrudService.findAll(Text, {
+    content: {
+      $elemMatch: {
+        text: { $regex: searchText, $options: "i" }
+      }
+    }
+  });
+  return res.status(texts ? 200 : 500).json({
+    message: texts ? "Success" : "Internal Server Error",
+    data: texts ? texts : {}
+  });
+};
 export default {
   addText,
   getTextById,
